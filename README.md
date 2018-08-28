@@ -31,7 +31,7 @@ Configure Squabble when you start the worker in your supervision tree. This shou
 
 ```elixir
 children = [
-  {Squabble, [subscriptions: [MyApp.Leader], size: 1}
+  {Squabble, [subscriptions: [MyApp.Leader], size: 1]}
 ]
 ```
 
