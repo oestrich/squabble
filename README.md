@@ -25,6 +25,16 @@ end
 
 In order to connect multiple nodes you should also set up [libcluster](https://github.com/bitwalker/libcluster).
 
+## Configuration
+
+Configure Squabble when you start the worker in your supervision tree. This should go _after_ `libcluster` if you're using that. All nodes should be connected before starting Squabble.
+
+```elixir
+children = [
+  {Squabble, [subscriptions: [MyApp.Leader], size: 1}
+]
+```
+
 ## Leader Notifications
 
 Squabble will a call a module on the node when the leader node is selected. This is a behaviour. See a sample below.
@@ -41,14 +51,4 @@ defmodule MyApp.Leader do
   def node_down() do
   end
 end
-```
-
-## Configuration
-
-Configure Squabble when you start the worker in your supervision tree. This should go _after_ `libcluster` if you're using that. All nodes should be connected before starting Squabble.
-
-```elixir
-children = [
-  {Squabble, [subscriptions: [MyApp.Leader], size: 1}
-]
 ```
