@@ -36,7 +36,7 @@ end
 
 ## Configuration
 
-Configure Squabble when you start the worker in your supervision tree. This shoudl go _after_ `libcluster` if you're using that. All nodes should be connected before starting Squabble.
+Configure Squabble when you start the worker in your supervision tree. This should go _after_ `libcluster` if you're using that. All nodes should be connected before starting Squabble.
 
 ```elixir
 children = [
