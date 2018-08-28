@@ -39,3 +39,11 @@ Configure squabble by setting up the winner notification modules.
 ```elixir
 config :squabble, :cluster, subscriptions: [MyApp.Leader]
 ```
+
+You need to start Squabble in your application tree _after_ `libcluster` if you're using that. All nodes should be connected before starting Squabble.
+
+```elixir
+children = [
+  {Squabble, []}
+]
+```
