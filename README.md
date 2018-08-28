@@ -34,16 +34,12 @@ defmodule MyApp.Leader do
 end
 ```
 
-Configure squabble by setting up the winner notification modules.
+## Configuration
 
-```elixir
-config :squabble, :cluster, subscriptions: [MyApp.Leader]
-```
-
-You need to start Squabble in your application tree _after_ `libcluster` if you're using that. All nodes should be connected before starting Squabble.
+Configure Squabble when you start the worker in your supervision tree. This shoudl go _after_ `libcluster` if you're using that. All nodes should be connected before starting Squabble.
 
 ```elixir
 children = [
-  {Squabble, []}
+  {Squabble, [subscriptions: [MyApp.Leader], size: 1}
 ]
 ```

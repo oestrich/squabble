@@ -17,8 +17,8 @@ defmodule Squabble do
   @election_initial_delay 500
   @election_random_delay 500
 
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
   @doc """
@@ -77,7 +77,7 @@ defmodule Squabble do
     end
   end
 
-  def init(_) do
+  def init(opts) do
     PG.join()
 
     :ets.new(@key, [:set, :protected, :named_table])
@@ -87,8 +87,13 @@ defmodule Squabble do
 
     :ok = :net_kernel.monitor_nodes(true)
 
+    size = Keyword.get(opts, :size, 1)
+    subscriptions = Keyword.get(opts, :subscriptions, [])
+
     state = %State{
       state: "candidate",
+      size: size,
+      subscriptions: subscriptions,
       term: 0,
       highest_seen_term: 0,
       votes: []

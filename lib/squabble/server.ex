@@ -13,16 +13,13 @@ defmodule Squabble.Server do
   @type debug() :: map()
 
   @key :squabble
-  @cluster_size Application.get_env(:squabble, :cluster)[:size]
   @check_election_timeout 1500
 
   @doc """
   Get the winner subscription notices
   """
-  def winner_subscriptions() do
-    config = Application.get_env(:squabble, :cluster)
-    subscriptions = Keyword.get(config, :subscriptions)
-    subscriptions ++ [Squabble.Server]
+  def winner_subscriptions(state) do
+    state.subscriptions ++ [Squabble.Server]
   end
 
   @doc """
@@ -87,7 +84,7 @@ defmodule Squabble.Server do
 
     case check_term_newer(state, term) do
       {:ok, :newer} ->
-        if @cluster_size == 1 do
+        if state.size == 1 do
           voted_leader(state, 1)
         else
           PG.broadcast(fn pid ->
@@ -241,7 +238,7 @@ defmodule Squabble.Server do
           Squabble.new_leader(pid, state.term)
         end)
 
-        Enum.each(winner_subscriptions(), fn module ->
+        Enum.each(winner_subscriptions(state), fn module ->
           module.leader_selected(state.term)
         end)
 
@@ -257,7 +254,7 @@ defmodule Squabble.Server do
   """
   @spec node_down(State.t(), atom()) :: {:ok, State.t()}
   def node_down(state, node) do
-    send_node_down_notice()
+    send_node_down_notice(state)
 
     case state.leader_node do
       ^node ->
@@ -270,10 +267,10 @@ defmodule Squabble.Server do
     end
   end
 
-  defp send_node_down_notice() do
+  defp send_node_down_notice(state) do
     case Squabble.node_is_leader?() do
       true ->
-        Enum.map(winner_subscriptions(), fn module ->
+        Enum.map(winner_subscriptions(state), fn module ->
           module.node_down()
         end)
 
@@ -308,7 +305,7 @@ defmodule Squabble.Server do
   """
   @spec check_majority_votes(State.t()) :: {:ok, :majority} | {:error, :not_enough}
   def check_majority_votes(state) do
-    case length(state.votes) >= @cluster_size / 2 do
+    case length(state.votes) >= state.size / 2 do
       true ->
         {:ok, :majority}
 
@@ -342,7 +339,7 @@ defmodule Squabble.Server do
 
     {:ok, state} = set_leader(state, self(), node(), term)
 
-    Enum.each(winner_subscriptions(), fn module ->
+    Enum.each(winner_subscriptions(state), fn module ->
       module.leader_selected(term)
     end)
 

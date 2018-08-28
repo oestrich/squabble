@@ -5,6 +5,8 @@ defmodule Squabble.State do
 
   defstruct [
     :state,
+    :size,
+    :subscriptions,
     :term,
     :highest_seen_term,
     :leader_pid,
