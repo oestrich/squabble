@@ -2,7 +2,13 @@
 
 A simple leader election. Pulled from [ExVenture](https://github.com/oestrich/ex_venture).
 
-In order to connect multiple nodes you should also set up [libcluster](https://github.com/bitwalker/libcluster).
+## What is this doing?
+
+Squabble starts once on each node and uses [Raft](https://raft.github.io/) leadership election amongst all of the nodes. When a leader is selected, callback modules are called on that you supply. This lets you kick off a process _once_ in your cluster anytime cluster state changes.
+
+This is used in ExVenture to boot the virtual world, for instance.
+
+Two callbacks are currently provided as seen below, when a new leader is selected and also when a node goes down. ExVenture uses both of these to rebalace the world across the still running cluster.
 
 ## Installation
 
@@ -11,10 +17,13 @@ Install via hex.
 ```elixir
 def deps do
   [
+    {:libcluster, "~> 3.0"},
     {:squabble, "~> 0.1.0"},
   ]
 end
 ```
+
+In order to connect multiple nodes you should also set up [libcluster](https://github.com/bitwalker/libcluster).
 
 ## Leader Notifications
 
