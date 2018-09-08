@@ -2,6 +2,8 @@
 
 A simple leader election. Pulled from [ExVenture](https://github.com/oestrich/ex_venture).
 
+**Warning:** this has currently only been tested on low traffic production. It works, but may not stand up to _your_ production. I'd love to get it there though!
+
 ## What is this doing?
 
 Squabble starts once on each node and uses [Raft](https://raft.github.io/) leadership election amongst all of the nodes. When a leader is selected, callback modules are called on that you supply. This lets you kick off a process _once_ in your cluster anytime cluster state changes.
@@ -18,7 +20,7 @@ Install via hex.
 def deps do
   [
     {:libcluster, "~> 3.0"},
-    {:squabble, "~> 0.1.0"},
+    {:squabble, git: "https://github.com/oestrich/squabble.git"},
   ]
 end
 ```
