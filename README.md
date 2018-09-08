@@ -2,7 +2,7 @@
 
 A simple leader election. Pulled from [ExVenture](https://github.com/oestrich/ex_venture).
 
-**Warning:** this has currently only been tested on low traffic production. It works, but may not stand up to _your_ production. I'd love to get it there though!
+**Warning:** This has currently only been tested on low traffic production. It works, but may not stand up to _your_ production. I'd love to get it there though!
 
 ## What is this doing?
 
