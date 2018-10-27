@@ -14,7 +14,7 @@ defmodule Squabble.MixProject do
       ],
       description: description(),
       package: package(),
-      homepage_url: "https://github.com/oestrich/squabble"
+      homepage_url: "https://github.com/oestrich/squabble",
       source_url: "https://github.com/oestrich/squabble"
     ]
   end
