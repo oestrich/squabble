@@ -20,7 +20,7 @@ Install via hex.
 def deps do
   [
     {:libcluster, "~> 3.0"},
-    {:squabble, git: "https://github.com/oestrich/squabble.git"},
+    {:squabble, "~> 0.1.0"},
   ]
 end
 ```
