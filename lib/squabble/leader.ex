@@ -14,4 +14,14 @@ defmodule Squabble.Leader do
   A node went down, callback from the squabble leader
   """
   @callback node_down() :: :ok
+
+  @doc """
+  Callback if we're not the leader
+  """
+  @callback not_leader(election_term()) :: :ok
+
+  @doc"""
+  Callback on startup
+  """
+  @callback startup(election_term()) :: :ok
 end

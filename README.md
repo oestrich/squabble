@@ -29,10 +29,14 @@ In order to connect multiple nodes you should also set up [libcluster](https://g
 
 ## Configuration
 
-Configure Squabble when you start the worker in your supervision tree. This should go _after_ `libcluster` if you're using that. All nodes should be connected before starting Squabble.
+Configure Squabble when you start the worker in your supervision tree. This should go _after_ `:pg` and `libcluster` if you're using that. All nodes should be connected before starting Squabble.
 
 ```elixir
 children = [
+  %{
+    id: :pg,
+    start: {:pg, :start_link, []}
+  },
   {Squabble, [subscriptions: [MyApp.Leader], size: 1]}
 ]
 ```
@@ -51,6 +55,14 @@ defmodule MyApp.Leader do
 
   @impl true
   def node_down() do
+  end
+  
+  @impl true
+  def startup() do
+  end
+  
+  @impl true
+  def not_leader() do
   end
 end
 ```

@@ -90,6 +90,10 @@ defmodule Squabble do
     size = Keyword.get(opts, :size, 1)
     subscriptions = Keyword.get(opts, :subscriptions, [])
 
+    Enum.each(subscriptions, fn module ->
+      Code.ensure_loaded(module)
+    end)
+
     state = %State{
       state: "candidate",
       size: size,

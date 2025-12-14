@@ -56,6 +56,12 @@ defmodule Squabble.Server do
       Squabble.leader_check(pid)
     end)
 
+    Enum.each(winner_subscriptions(state), fn module ->
+      if function_exported?(module, :startup, 1) do
+        module.startup(state.term)
+      end
+    end)
+
     {:ok, state}
   end
 
@@ -82,9 +88,10 @@ defmodule Squabble.Server do
       "Starting an election for term #{term}, announcing candidacy"
     end, type: :squabble)
 
+
     case check_term_newer(state, term) do
       {:ok, :newer} ->
-        if state.size == 1 do
+        if length(PG.members()) == 1 do
           voted_leader(state, 1)
         else
           PG.broadcast(fn pid ->
@@ -105,12 +112,26 @@ defmodule Squabble.Server do
           "Someone already won this round, not starting"
         end, type: :squabble)
 
+        Enum.each(winner_subscriptions(state), fn module ->
+          if function_exported?(module, :not_leader, 1) do
+            module.not_leader(state.term)
+          end
+        end)
+
         {:ok, state}
 
       {:error, :older} ->
         Logger.debug(fn ->
           "This term has already completed, not starting"
         end, type: :squabble)
+
+        if state.state != "leader" do
+          Enum.each(winner_subscriptions(state), fn module ->
+            if function_exported?(module, :not_leader, 1) do
+              module.not_leader(state.term)
+            end
+          end)
+        end
 
         {:ok, state}
     end
@@ -186,6 +207,14 @@ defmodule Squabble.Server do
       end, type: :squabble)
 
       :ets.insert(@key, {:is_leader?, false})
+
+      if leader_node != node() do
+        Enum.each(winner_subscriptions(state), fn module ->
+          if function_exported?(module, :not_leader, 1) do
+            module.not_leader(term)
+          end
+        end)
+      end
 
       state =
         state
@@ -305,7 +334,11 @@ defmodule Squabble.Server do
   """
   @spec check_majority_votes(State.t()) :: {:ok, :majority} | {:error, :not_enough}
   def check_majority_votes(state) do
-    case length(state.votes) >= state.size / 2 do
+
+    current_size = length(PG.members())
+    current_size = if current_size < 1, do: 1, else: current_size
+
+    case length(state.votes) >= current_size / 2 do
       true ->
         {:ok, :majority}
 
@@ -379,5 +412,14 @@ defmodule Squabble.Server do
       _ ->
         {:ok, state}
     end
+  end
+
+  @impl true
+  def not_leader(_term) do
+    :ok
+  end
+  @impl true
+  def startup(_term) do
+    :ok
   end
 end
